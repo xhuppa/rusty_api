@@ -1,6 +1,6 @@
 -- User table
 CREATE TABLE user (
-    user_id INT PRIMARY KEY,
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -15,59 +15,75 @@ CREATE TABLE user (
 
 -- User Type table (Optional, for defining user roles)
 CREATE TABLE user_type (
-    user_type_id INT PRIMARY KEY,
+    user_type_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL
 );
 
--- Host table
-CREATE TABLE host (
-    host_id INT PRIMARY KEY,
-    name VARCHAR(255),
-    address TEXT,
-    pricing DECIMAL(10, 2),
-    restrictions TEXT
+-- Service Provider Type table
+CREATE TABLE service_provider_type (
+    service_provider_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    service_provider_name VARCHAR(255) NOT NULL
 );
 
 -- Vendor table
 CREATE TABLE vendor (
-    vendor_id INT PRIMARY KEY,
+    vendor_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255),
-    category VARCHAR(255),
     pricing DECIMAL(10, 2),
     description TEXT
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
 );
 
--- Event table
-CREATE TABLE event (
-    event_id INT PRIMARY KEY,
+-- Venue table
+CREATE TABLE venue (
+    venue_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255),
-    date DATE,
     location_id INT,
-    FOREIGN KEY (location_id) REFERENCES event_location(event_location_id)
 );
-
--- Event Location table
-CREATE TABLE event_location (
-    event_location_id INT PRIMARY KEY,
-    host_id INT,
-    address TEXT,
-    pricing DECIMAL(10, 2),
-    restrictions TEXT
+-- Venue pricing table
+CREATE TABLE venue_prices (
+    price_id INT PRIMARY KEY AUTO_INCREMENT,
+    day_of_week VARCHAR(255),
+    price_amount INT,
+    FOREIGN KEY (venue_id) REFERENCES venue_location(venue_id)
 );
-
--- Event Location Links table (for associating multiple locations with an event)
-CREATE TABLE event_location_links (
-    event_location_id INT,
-    event_id INT,
-    FOREIGN KEY (event_location_id) REFERENCES event_location(event_location_id),
-    FOREIGN KEY (event_id) REFERENCES event(event_id)
+CREATE TABLE categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_name VARCHAR(255),
 );
-
--- Event Vendor table
-CREATE TABLE event_vendor (
-    event_vendor_id INT PRIMARY KEY,
-    event_id INT,
+CREATE TABLE bar_service (
+    bar_service_id INT PRIMARY KEY AUTO_INCREMENT,
     vendor_id INT,
-    FOREIGN KEY (event_id) REFERENCES event(event_id),
+    category_id INT,
     FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id)
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+    FOREIGN KEY (service_provider_type_id) REFERENCES service_provider_type(service_provider_type_id) -- Reference to service provider type
+);
+
+CREATE TABLE music (
+    music_id INT PRIMARY KEY AUTO_INCREMENT,
+    vendor_id INT,
+    category_id INT,
+    FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id)
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+    FOREIGN KEY (service_provider_type_id) REFERENCES service_provider_type(service_provider_type_id) -- Reference to service provider type
+);
+
+CREATE TABLE music_prices (
+    music_price_id INT PRIMARY KEY AUTO_INCREMENT,
+    music_id INT,
+    fixed_rate INT,
+    price_per_hour DECIMAL(10, 2),
+    -- Add other attributes related to pricing (e.g., effective_date, discounts)
+    FOREIGN KEY (music_id) REFERENCES music(music_id)
+);
+
+-- Create Bar_Service_Prices table for price based on expected number of people
+CREATE TABLE bar_service_prices (
+    bar_service_price_id INT PRIMARY KEY AUTO_INCREMENT,
+    bar_service_id INT,
+    expected_people INT,
+    price_based_on_people DECIMAL(10, 2),
+    -- Add other attributes related to pricing (e.g., effective_date, discounts)
+    FOREIGN KEY (bar_service_id) REFERENCES bar_service(bar_service_id)
 );

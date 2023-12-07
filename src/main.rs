@@ -7,6 +7,52 @@ use mysql::*;
 use rocket::Request;
 use mysql::Opts;
 
+#[derive(Debug, PartialEq, Eq)]
+struct User {
+    user_id: i64,
+    username: String,
+    email: String,
+    password: String,
+    first_name: String,
+    last_name: String,
+    date_of_birth: String,
+    user_type: i64,
+}
+
+// Sign-in function for users
+fn signin(cn: &mut PooledConn, mail: String) -> Vec<String> {
+    let mut result: Vec<String> = Vec::new();
+    let query = format!("SELECT user_id, username, email, password, first_name, last_name, user_type FROM user WHERE email = \"{}\"", mail);
+
+    let res = cn
+        .query_map(
+            query,
+            |(user_id, username, email, password, first_name, last_name, user_type)| {
+                User {
+                    user_id,
+                    username,
+                    email,
+                    password,
+                    first_name,
+                    last_name,
+                    date_of_birth: String::new(), // Replace this with the appropriate value
+                    user_type,
+                }
+            },
+        )
+        .expect("Query failed.");
+
+    for r in res {
+        result.push(r.password);
+        result.push(r.email);
+        result.push(r.user_id.to_string());
+        result.push(r.first_name);
+        result.push(r.user_type.to_string());
+    }
+
+    result
+}
+
 //get call
 #[get("/")]
 fn index() -> String {
