@@ -46,3 +46,11 @@ pub fn signin(cn: &mut PooledConn, mail: String) -> Vec<String> {
     result
 }
 
+pub fn create_user(cn: &mut PooledConn, username: String, email: String, password: String) -> Result<usize, mysql::Error> {
+  let query = format!(
+      "INSERT INTO user (username, email, password) VALUES ('{}', '{}', '{}')",
+      username, email, password
+  );
+
+  cn.exec_drop(query)
+}
