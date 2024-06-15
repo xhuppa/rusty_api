@@ -54,3 +54,27 @@ pub fn create_user(cn: &mut PooledConn, username: String, email: String, passwor
 
   cn.exec_drop(query)
 }
+
+pub fn get_user_by_id(cn: &mut PooledConn, user_id: i64) -> Option<User> {
+  let query = format!("SELECT * FROM user WHERE user_id = {}", user_id);
+
+  let res = cn
+      .query_map(
+          query,
+          |(user_id, username, email, password, first_name, last_name, user_type)| {
+              User {
+                  user_id,
+                  username,
+                  email,
+                  password,
+                  first_name,
+                  last_name,
+                  date_of_birth: String::new(),
+                  user_type,
+              }
+          },
+      )
+      .expect("Query failed.");
+
+  res.into_iter().next()
+}
