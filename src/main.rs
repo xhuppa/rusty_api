@@ -15,7 +15,7 @@ fn index() -> String {
     let opts = Opts::from_url(&url).expect("Failed to parse the database URL");
     let pool = Pool::new(opts).expect("Failed to create connection pool");
     let mut conn = pool.get_conn().expect("Failed to get a connection from the pool");
-    let v: Vec<String> = signin(&mut conn, "sherwanirobert@gmail.com".to_string());
+    let v: Vec<String> = user::signin(&mut conn, "sherwanirobert@gmail.com".to_string());
     let pass: String = v[0].clone();
     let fname: String = v[3].clone();
     let uid: String = v[4].clone();
