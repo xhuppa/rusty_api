@@ -21,6 +21,20 @@ fn index() -> String {
     let uid: String = v[4].clone();
     format!("first name: {} uid:{} password: {}", fname, uid, pass)
 }
+
+#[get("/user/<user_id>")]
+fn get_user(user_id: i64) -> String {
+    let url = env::var("DATABASE_URL").expect("DATABASE_URL not found in environment variables");
+    let opts = Opts::from_url(&url).expect("Failed to parse the database URL");
+    let pool = Pool::new(opts).expect("Failed to create connection pool");
+    let mut conn = pool.get_conn().expect("Failed to get a connection from the pool");
+    
+    match user::get_user_by_id(&mut conn, user_id) {
+        Some(user) => format!("User: {:?}", user),
+        None => format!("User with ID {} not found", user_id),
+    }
+}
+
 //route for 404 rsponse
 #[catch(404)]
 fn not_found(req: &Request) -> String {
