@@ -35,6 +35,19 @@ fn get_user(user_id: i64) -> String {
     }
 }
 
+#[post("/user/<username>/<email>/<password>")]
+fn create_user(username: String, email: String, password: String) -> String {
+    let url = env::var("DATABASE_URL").expect("DATABASE_URL not found in environment variables");
+    let opts = Opts::from_url(&url).expect("Failed to parse the database URL");
+    let pool = Pool::new(opts).expect("Failed to create connection pool");
+    let mut conn = pool.get_conn().expect("Failed to get a connection from the pool");
+    
+    match user::create_user(&mut conn, username, email, password) {
+        Ok(_) => format!("User created successfully"),
+        Err(err) => format!("Failed to create user: {:?}", err),
+    }
+}
+
 //route for 404 rsponse
 #[catch(404)]
 fn not_found(req: &Request) -> String {
