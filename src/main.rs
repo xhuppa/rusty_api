@@ -58,6 +58,6 @@ fn not_found(req: &Request) -> String {
 fn main() {
     rocket::ignite()
         .register(catchers![not_found])
-        .mount("/", routes![index])
+        .mount("/", routes![index, get_user, create_user])
         .launch();
 }
